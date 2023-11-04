@@ -3,4 +3,10 @@ enum UserVerifyStatus {
   Verified,
   Banned
 }
-export { UserVerifyStatus }
+enum TokenType {
+  AccessToken,
+  RefreshToken,
+  ForgotPasswordToken,
+  EmailVerifyToken
+}
+export { UserVerifyStatus, TokenType }
