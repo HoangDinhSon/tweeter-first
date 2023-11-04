@@ -1,9 +1,5 @@
 import { ObjectId } from 'mongodb'
-enum UserVerifyStatus {
-  Unverified,
-  Verified,
-  Banned
-}
+import { UserVerifyStatus } from '~/constants/enums'
 interface UserType {
   _id?: ObjectId
   name?: string
@@ -43,7 +39,7 @@ class User {
   cover_photo: string
   constructor(user: UserType) {
     const date = new Date()
-    this._id = user._id 
+    this._id = user._id
     this.name = user.name || ''
     this.email = user.email
     this.date_of_birth = user.date_of_birth || new Date()
