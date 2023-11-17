@@ -3,16 +3,44 @@ import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import usersService from '~/services/users.service'
 
-export default function loginValidation(req: Request, res: Response, next: NextFunction) {
-  const { email, password } = req.body
-  if (!email || !password) {
-    return res.status(400).json({
-      error: 'Missing email or password'
-    })
-  }
-
-  next()
-}
+export const  loginValidator = validate(
+  checkSchema({
+    email: {
+      notEmpty: true,
+      isEmail: true,
+      trim: true,
+      custom: {
+        options: async (value, { req }) => {
+          const isExistEmail = await usersService.checkEmailExist(value)
+          if (isExistEmail) {
+            throw new Error(' Email already Exist')
+          }
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: true,
+      isString: true,
+      isLength: {
+        options: {
+          min: 6,
+          max: 50
+        }
+      },
+      isStrongPassword: {
+        errorMessage:
+          'Password must be at least 6 character long and contain at least lowercase  letter , 1 uppercase letter, 1 number , and 1 symbol',
+        options: {
+          minLength: 6,
+          minLowercase: 1,
+          minUppercase: 1,
+          minSymbols: 1
+        }
+      }
+    }
+  })
+)
 export const registerValidator = validate(
   checkSchema({
     name: {
