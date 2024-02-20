@@ -1,6 +1,7 @@
 import usersRouter from '~/routes/users.routes'
 import express, { Request, Response, NextFunction } from 'express'
 import databaseService from './services/database.services'
+import { defaultErrorHandler } from './middlewares/error.middlewares'
 const app = express()
 const port = 3000
 
@@ -10,10 +11,7 @@ app.use('/users', usersRouter)
 databaseService.connect()
 // run().catch(console.dir)
 // we concentrate error in here exception validator because i don't see error.
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.log('error is ', err.message)
-  res.status(400).json({ msg: err.message })
-})
+app.use(defaultErrorHandler)
 app.get('/', (req, res) => {
   res.send('initial server success')
 })

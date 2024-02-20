@@ -2,8 +2,9 @@ import type { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import usersService from '~/services/users.service'
+import { ErrorWithStatus } from '~/models/Errors'
 
-export const  loginValidator = validate(
+export const loginValidator = validate(
   checkSchema({
     email: {
       notEmpty: true,
