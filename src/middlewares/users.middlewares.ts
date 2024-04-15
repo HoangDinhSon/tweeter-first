@@ -2,50 +2,36 @@ import type { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { validate } from '~/utils/validation'
 import usersService from '~/services/users.service'
-import { ErrorWithStatus } from '~/models/Errors'
 import { USERS_MESSAGE } from '~/constants/message'
+import databaseService from '~/services/database.services'
 
 export const loginValidator = validate(
   checkSchema({
     email: {
-      notEmpty: true,
-      isEmail: true,
+      isEmail: {
+        errorMessage: USERS_MESSAGE.EMAIL_IS_INVALID
+      },
       trim: true,
       custom: {
         options: async (value, { req }) => {
-          const isExistEmail = await usersService.checkEmailExist(value)
-          if (isExistEmail) {
-            throw new Error(' Email already Exist')
+          const user = await databaseService.users.findOne({ email: value })
+          if (user == null) {
+            throw new Error(USERS_MESSAGE.USER_NOT_FOUND)
           }
-          return true
+          req.user = user
+          return true // use for run continue controller 
         }
       }
     },
     password: {
-      notEmpty: true,
-      isString: true,
-      isLength: {
-        options: {
-          min: 6,
-          max: 50
-        }
-      },
-      isStrongPassword: {
-        errorMessage:
-          'Password must be at least 6 character long and contain at least lowercase  letter , 1 uppercase letter, 1 number , and 1 symbol',
-        options: {
-          minLength: 6,
-          minLowercase: 1,
-          minUppercase: 1,
-          minSymbols: 1
-        }
+      notEmpty: {
+        errorMessage: USERS_MESSAGE.NAME_IS_REQUIRED
       }
     }
   })
 )
 export const registerValidator = validate(
   checkSchema({
-
     name: {
       notEmpty: {
         errorMessage: USERS_MESSAGE.NAME_IS_REQUIRED
@@ -56,7 +42,7 @@ export const registerValidator = validate(
       isLength: {
         options: {
           min: 4,
-          max: 100,
+          max: 100
         },
         errorMessage: USERS_MESSAGE.NAME_LENGTH_MUST_BE_FROM_1_TO_100
       },
@@ -95,7 +81,6 @@ export const registerValidator = validate(
           max: 50
         },
         errorMessage: USERS_MESSAGE.PASSWORD_LENGTH_MUST_BE_FROM_6_TO_50
-
       },
       isStrongPassword: {
         options: {
@@ -148,9 +133,8 @@ export const registerValidator = validate(
           strict: true,
           strictSeparator: true
         },
-        errorMessage:
-          USERS_MESSAGE.DAY_OF_BIRTH_MUST_BE_ISO8601
+        errorMessage: USERS_MESSAGE.DAY_OF_BIRTH_MUST_BE_ISO8601
       }
-    },
+    }
   })
 )
