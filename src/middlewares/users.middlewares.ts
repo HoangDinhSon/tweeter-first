@@ -4,6 +4,7 @@ import { validate } from '~/utils/validation'
 import usersService from '~/services/users.service'
 import { USERS_MESSAGE } from '~/constants/message'
 import databaseService from '~/services/database.services'
+import { hashPassword } from '~/utils/crypto'
 
 export const loginValidator = validate(
   checkSchema({
@@ -14,12 +15,12 @@ export const loginValidator = validate(
       trim: true,
       custom: {
         options: async (value, { req }) => {
-          const user = await databaseService.users.findOne({ email: value })
+          const user = await databaseService.users.findOne({ email: value, password: hashPassword(req.body.password) })
           if (user == null) {
-            throw new Error(USERS_MESSAGE.USER_NOT_FOUND)
+            throw new Error(USERS_MESSAGE.EMAIL_OR_PASSWORD_IS_INCORRECT)
           }
           req.user = user
-          return true // use for run continue controller 
+          return true // use for run continue controller
         }
       }
     },

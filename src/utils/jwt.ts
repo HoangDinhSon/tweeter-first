@@ -2,6 +2,8 @@
 // use algorithm RS256
 // read doc jwt we transport synch to  async
 import jwt from 'jsonwebtoken'
+import { config } from 'dotenv'
+config()
 const PRIVATE_KEY = process.env.JWT_SECRET || 'secrete_key_when_load_variant_env'
 interface SignTokenParameter {
   payload: string | object | Buffer
